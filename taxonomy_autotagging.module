@@ -1,0 +1,169 @@
+<?php
+// load the helper file
+module_load_include('inc', 'taxonomy_autotagging', 'includes/taxonomy_autotagging.lib');
+
+/**
+ * Implements hook_help().
+ */
+function taxonomy_autotagging_help($section) {
+	switch ($section) {
+		case 'admin/help#search' :
+			return t ( 'Automatically analysis and process the nodes text by matching the terms (and synonyms) against the content of textual fields.' );
+	}
+}
+
+/**
+ * implements hook_form_FORMID_alter().
+ */
+function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_state) {
+	if ($form ['#field'] ['type'] != 'taxonomy_term_reference')
+		return;
+	$form ['taxonomy_autotagging'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Taxonomy Auto Tagging' ),
+			'#description' => t ( 'Automatically analysis the nodes text by matching the taxonomy terms.' ),
+			'taxonomy_autotagging_status' => array (
+					'#type' => 'radios',
+					'#title' => t ( 'Active/Disactive the Taxonomy Auto Tagging' ),
+					'#description' => t ( 'Autocategorise will assume that the last, heaviest term is the <em>misc</em>, or <em>other</em> category' ),
+					'#options' => array (
+							'0' => t ( 'Disactive' ),
+							'1' => t ( 'Active' )
+					),
+					'#default_value' => isset ( $form ['#instance'] ['settings'] ['taxonomy_autotagging_status'] ) ? $form ['#instance'] ['settings'] ['taxonomy_autotagging_status'] : 0
+			),
+			'taxonomy_autotagging_case' => array (
+					'#type' => 'checkbox',
+					'#title' => t ( 'Case sensitive' ),
+					'#description' => t ( 'Default setting is case insensitive, and the text will be conveted to lower case before matching.' ),
+					'#default_value' => isset ( $form ['#instance'] ['settings'] ['taxonomy_autotagging_case'] ) ? $form ['#instance'] ['settings'] ['taxonomy_autotagging_case'] : 0
+			),
+			'taxonomy_autotagging_run' => array (
+					'#type' => 'submit',
+					'#value' => t ( 'Run the taxonomy auto tagging' ),
+					'#suffix' => '<span class="description">' . t ( 'Could take time and could put an increased load on your server.' ) . '</span>'
+			)
+	);
+	$form ['#submit'] [] = 'taxonomy_autotagging_admin_form_callback';
+}
+
+/**
+ * form callback to update the configurations
+ * @param $form
+ * @param $form_state
+ */
+function taxonomy_autotagging_admin_form_callback($form, &$form_state) {
+	$instance = &$form_state ['values'] ['instance'];
+	$instance ['settings'] ['taxonomy_autotagging_status'] = $form_state ['values'] ['taxonomy_autotagging_status'];
+	$instance ['settings'] ['taxonomy_autotagging_case'] = $form_state ['values'] ['taxonomy_autotagging_case'];
+	field_update_instance ( $instance );
+
+	if ($form_state ['values'] ['op'] == t ( 'Run the taxonomy auto tagging' )) {
+		_taxonomy_autotagging_process_all ( $instance );
+	}
+}
+
+/**
+ * Batch process all the nodes
+ * @param $instance
+ */
+function _taxonomy_autotagging_process_all($instance) {
+	$time_start = microtime(true);
+	global $language;
+	$info = entity_get_info ( $instance ['entity_type'] );
+	// get all the entity ids from the bundle
+
+	// Using Batch API for bulk autocategorising
+	$batch = array (
+			'title' => t ( 'Taxonomy Auto Tagging' ),
+			'operations' => array (),
+			'finished' => '_taxonomy_autotagging_batch_finished',
+			'init_message' => t ( 'Initializing...' ),
+			'progress_message' => t ( 'Processing @current out of @total instances.' ),
+			'error_message' => t ( 'Updating of auto tagging terms encountered an error.' )
+	);
+
+	// prepare the ids
+	$entity_ids = db_select ( $info ['base table'], 't' )->fields ( 't', array ($info ['entity keys'] ['id']) )->condition ( $info ['entity keys'] ['bundle'], $instance ['bundle'] )->execute ()->fetchCol ();
+
+	//preoare the taxonomy terms/synonyms
+	$field = field_info_field($instance['field_name']);
+	$terms = _taxonomy_autotagging_prepare_terms($field);
+
+	foreach ( $entity_ids as $id ) {
+		// We create a new process for each entity, as a means of keeping the
+		// batch process more transparent
+		$batch ['operations'] [] = array (
+				'_taxonomy_autotagging_batch_process_single',
+				array (
+						$terms,
+						$instance,
+						$id,
+						$info
+				)
+		);
+	}
+
+	batch_set ( $batch );
+	batch_process ();
+	$time_end = microtime(true);
+	$time = $time_end - $time_start;
+	dvm($time, 'Total time');
+}
+
+/**
+ * Runs the batch process for one entity
+ */
+function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $info, &$context) {
+	$time_start = microtime(true);
+	//get the tokenized vector at first
+	$entity = $info['load hook']($id);
+	$vector = _taxonomy_autotagging_entity_tokenize($entity);
+
+	//update with the taxonomy autotagging results
+	$analysis = _taxonomy_autotagging_analysis($vector, $terms, $instance);
+	if (!empty($analysis)) {
+		$entity->{$instance['field_name']}['und'] = _taxonomy_autotagging_analysis($vector, $terms, $instance);
+		field_attach_update($instance['entity_type'], $entity);
+		$msg = 'auto tagging now';
+	} else {
+		$msg = 'nothing found';
+	}
+
+	$time_end = microtime(true);
+	$time = $time_end - $time_start;
+
+	// Update batch progress information.
+	$context['results']['processed']++;
+	$context['message'] = 'We are processing with node - '.$id;
+	$context['message'].= ' - '.$msg;
+	$context['message'].= ' - in '.round($time,2).' second(s)';
+}
+
+/**
+ * renders the entity into one string and strips the tags
+ */
+function _taxonomy_autotagging_entity_tokenize($entity) {
+	// run drupal function to get the plain text
+	$string = $entity->body['und'][0]['value'];
+	//$string = drupal_html_to_text($string);
+	return $string;
+	//return preg_split('/((^\p{P}+)|(\p{P}*\s+\p{P}*)|(\p{P}+$))/', $string, -1, PREG_SPLIT_NO_EMPTY);
+}
+
+/**
+ * Batch process finished callback.
+ */
+function _taxonomy_autotagging_batch_finished($success, $results, $operations) {
+	if ($success) {
+		$message = count ( $results ) . ' processed.';
+		$message .= theme ( 'item_list', $results );
+	} else {
+		$error_operation = reset ( $operations );
+		$message = t ( 'An error occurred while processing %error_operation with arguments: @arguments', array (
+				'%error_operation' => $error_operation [0],
+				'@arguments' => print_r ( $error_operation [1], TRUE )
+		) );
+	}
+	drupal_set_message ( $message );
+}
