@@ -1,4 +1,6 @@
 <?php
+define('TAXONOMY_AUTOTAGGING_VERSION', '1.x-dev');
+
 // load the helper file
 module_load_include('inc', 'taxonomy_autotagging', 'includes/taxonomy_autotagging.lib');
 
@@ -72,6 +74,8 @@ function _taxonomy_autotagging_process_all($instance) {
 	global $language;
 	$info = entity_get_info ( $instance ['entity_type'] );
 	// get all the entity ids from the bundle
+	// prepare the ids
+	$entity_ids = db_select ( $info ['base table'], 't' )->fields ( 't', array ($info ['entity keys'] ['id']) )->condition ( $info ['entity keys'] ['bundle'], $instance ['bundle'] )->execute ()->fetchCol ();
 
 	// Using Batch API for bulk autocategorising
 	$batch = array (
@@ -82,9 +86,6 @@ function _taxonomy_autotagging_process_all($instance) {
 			'progress_message' => t ( 'Processing @current out of @total instances.' ),
 			'error_message' => t ( 'Updating of auto tagging terms encountered an error.' )
 	);
-
-	// prepare the ids
-	$entity_ids = db_select ( $info ['base table'], 't' )->fields ( 't', array ($info ['entity keys'] ['id']) )->condition ( $info ['entity keys'] ['bundle'], $instance ['bundle'] )->execute ()->fetchCol ();
 
 	//preoare the taxonomy terms/synonyms
 	$field = field_info_field($instance['field_name']);
@@ -108,6 +109,7 @@ function _taxonomy_autotagging_process_all($instance) {
 	batch_process ();
 	$time_end = microtime(true);
 	$time = $time_end - $time_start;
+	//@toda: update to set message or dblog once the version is stable
 	dvm($time, 'Total time');
 }
 
@@ -123,7 +125,7 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $inf
 	//update with the taxonomy autotagging results
 	$analysis = _taxonomy_autotagging_analysis($vector, $terms, $instance);
 	if (!empty($analysis)) {
-		$entity->{$instance['field_name']}['und'] = _taxonomy_autotagging_analysis($vector, $terms, $instance);
+		$entity->{$instance['field_name']}['und'] = $analysis;
 		field_attach_update($instance['entity_type'], $entity);
 		$msg = 'auto tagging now';
 	} else {
