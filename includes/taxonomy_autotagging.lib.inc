@@ -1,5 +1,16 @@
 <?php
 /**
+ * renders the entity into one string and strips the tags
+ */
+function _taxonomy_autotagging_entity_tokenize($entity) {
+    // run drupal function to get the plain text
+    $string = $entity->body['und'][0]['value'];
+    //$string = drupal_html_to_text($string);
+    return $string;
+    //return preg_split('/((^\p{P}+)|(\p{P}*\s+\p{P}*)|(\p{P}+$))/', $string, -1, PREG_SPLIT_NO_EMPTY);
+}
+
+/**
  * @param string $vector
  * @param array $terms
  * @param object $instance
