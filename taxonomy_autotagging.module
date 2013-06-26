@@ -66,6 +66,27 @@ function taxonomy_autotagging_admin_form_callback($form, &$form_state) {
 }
 
 /**
+ * Implements hook_form_alter()
+ * add taxonomy autotagging fields into the form
+ */
+function taxonomy_autotagging_form_alter(&$form, &$form_state, $form_id) {
+    if (isset($form['type']) && $form['type']['#value'] . '_node_form' == $form_id) {
+        $field_info = field_info_instances();
+        foreach ($field_info['node'][$form['type']['#value']] as $field) {
+            if (isset($field['settings']['taxonomy_autotagging_status']) && $field['settings']['taxonomy_autotagging_status'] == '1') {
+                $field_autotag = $field;
+                $form[$field_autotag['field_name']]['taxonomy_autotagging']['status'] = array(
+                    '#type' => 'radios',
+                    '#title' => t('Enable Taxonomy Autotagging with this vocabulary in this node?'),
+                    '#default_value' => '1',
+                    '#options' => array(t('Disabled'), t('Enabled')),
+                );
+            }
+        }
+    }
+}
+
+/**
  * Batch process all the nodes
  * @param $instance
  */
@@ -140,17 +161,6 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $inf
 	$context['message'] = 'We are processing with node - '.$id;
 	$context['message'].= ' - '.$msg;
 	$context['message'].= ' - in '.round($time,2).' second(s)';
-}
-
-/**
- * renders the entity into one string and strips the tags
- */
-function _taxonomy_autotagging_entity_tokenize($entity) {
-	// run drupal function to get the plain text
-	$string = $entity->body['und'][0]['value'];
-	//$string = drupal_html_to_text($string);
-	return $string;
-	//return preg_split('/((^\p{P}+)|(\p{P}*\s+\p{P}*)|(\p{P}+$))/', $string, -1, PREG_SPLIT_NO_EMPTY);
 }
 
 /**
