@@ -9,3 +9,4 @@ dependencies[] = taxonomy
 
 files[] = taxonomy_autotagging.module
 files[] = includes/taxonomy_autotagging.lib.inc
+files[] = includes/taxonomy_autotagging.batch.inc

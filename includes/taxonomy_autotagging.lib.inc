@@ -1,5 +1,21 @@
 <?php
 /**
+ * Returns the language code of the given entity.
+ */
+function _taxonomy_autotagging_entity_language($entity_type, $entity, $check_language_property = TRUE) {
+    $langcode = NULL;
+
+    if (function_exists('entity_language')) {
+        $langcode = entity_language($entity_type, $entity);
+    }
+    elseif ($check_language_property && !empty($entity->language)) {
+        $langcode = $entity->language;
+    }
+
+    return !empty($langcode) ? $langcode : LANGUAGE_NONE;
+}
+
+/**
  * renders the entity into one string and strips the tags
  */
 function _taxonomy_autotagging_entity_tokenize($entity) {
