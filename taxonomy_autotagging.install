@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Install and related hooks for taxonomy autotagging.
+ */
+/**
+ * Implements hook_schema().
+ */
+function taxonomy_autotagging_schema(){
+    $schema = array();
+    $schema['taxonomy_autotagging_node'] = array(
+        'description' => 'Stores information of taxonomy autotagging enabled/disabled node(s).',
+        'fields' => array(
+            'entity_type' => array(
+                'description' => 'The type of entity.',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+            ),
+            'entity_id' => array(
+                'description' => 'The primary identifier for an entity.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'language' => array(
+                'description' => 'The language for this data item.',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+            ),
+            'bundle' => array(
+                'description' => 'The bundle to which this entity belongs.',
+                'type' => 'varchar',
+                'length' => 128,
+                'not null' => TRUE,
+            ),
+            'field_name' => array(
+                'description' => 'The field name with the taxonomy autotagging.',
+                'type' => 'varchar',
+                'length' => 128,
+                'not null' => TRUE,
+            ),
+            'status' => array(
+                'description' => 'Boolean indicating whether the entity should be in the taxonomy autotagging.',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 1,
+            ),
+            'changed' => array(
+                'description' => 'The Unix timestamp when an entity was changed.',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+        ),
+        'indexes' => array(
+            'entity_id'   => array('entity_id'),
+            'field_name'   => array('field_name'),
+        ),
+    );
+    return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function taxonomy_autotagging_uninstall() {
+    // Simple DB query to get the names of our variables.
+    $results = db_select('variable', 'v')
+        ->fields('v', array('name'))
+        ->condition('name', 'taxonomy_autotagging_%', 'LIKE')
+        ->execute();
+    // Loop through and delete each of our variables.
+    foreach ($results as $result) {
+        variable_del($result->name);
+    }
+}
