@@ -74,10 +74,13 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
     foreach ($field_info['node'][$form['type']['#value']] as $field) {
         if (isset($field['settings']['taxonomy_autotagging_active']) && $field['settings']['taxonomy_autotagging_active'] == '1') {
             $field_autotag = $field;
+            $existing = db_select('taxonomy_autotagging_node','tan')->condition('entity_id',$form['nid'])->condition('field_name',$field_autotag['field_name'],'like')->fields('tan',array('status'))->execute();
+            $existing_value = $existing->fetchField();
+            $existing_value = ($existing_value===FALSE) ? '1' : $existing_value;
             $form[$field_autotag['field_name']]['taxonomy_autotagging_active'] = array(
                 '#type' => 'radios',
                 '#title' => t('Enable Taxonomy Auto Tagging with this vocabulary in this node?'),
-                '#default_value' => '1',
+                '#default_value' => $existing_value,
                 '#options' => array(t('Disabled'), t('Enabled')),
             );
         }
@@ -108,8 +111,8 @@ function _taxonomy_autotagging_node_form_submit($form, &$form_state) {
                 );
                 // save them into database
                 if (is_array($taxonomy_autotagging_field_config) && !empty($taxonomy_autotagging_field_config)) {
-                    $existing = db_select('taxonomy_autotagging_node')->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like');
-                    if (!$existing) {
+                    $existing = db_select('taxonomy_autotagging_node','tan')->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like')->fields('tan',array('status'))->execute();
+                    if ($existing->fetchField()===FALSE) {
                         db_insert('taxonomy_autotagging_node')->fields($taxonomy_autotagging_field_config)->execute();
                     } else {
                         db_update('taxonomy_autotagging_node')->fields($taxonomy_autotagging_field_config)->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like')->execute();
