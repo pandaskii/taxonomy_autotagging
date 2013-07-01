@@ -3,11 +3,18 @@
  * renders the entity into one string and strips the tags
  */
 function _taxonomy_autotagging_entity_tokenize($entity) {
+    $vector = '';
+    $language = _taxonomy_autotagging_entity_language($entity->type, $entity, $check_language_property = TRUE);
     // run drupal function to get the plain text
-    $string = $entity->body['und'][0]['value'];
-    //$string = drupal_html_to_text($string);
-    return $string;
-    //return preg_split('/((^\p{P}+)|(\p{P}*\s+\p{P}*)|(\p{P}+$))/', $string, -1, PREG_SPLIT_NO_EMPTY);
+    // prepare the text for matching
+    $string = $entity->title;
+    $string .= $entity->body[$language][0]['safe_value'];
+    if (!empty($string)) {
+        $string = strip_tags(drupal_html_to_text($string));
+        $string = preg_split('/((^\p{P}+)|(\p{P}*\s+\p{P}*)|(\p{P}+$))/', $string, -1, PREG_SPLIT_NO_EMPTY);
+        $vector = implode(' ',$string);
+    }
+    return $vector;
 }
 
 /**
@@ -54,4 +61,20 @@ function _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled) {
 		);
 	}
 	return $terms;
+}
+
+/**
+ * Returns the language code of the given entity.
+ */
+function _taxonomy_autotagging_entity_language($entity_type, $entity, $check_language_property = TRUE) {
+    $langcode = NULL;
+
+    if (function_exists('entity_language')) {
+        $langcode = entity_language($entity_type, $entity);
+    }
+    elseif ($check_language_property && !empty($entity->language)) {
+        $langcode = $entity->language;
+    }
+
+    return !empty($langcode) ? $langcode : LANGUAGE_NONE;
 }
