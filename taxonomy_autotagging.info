@@ -1,12 +1,10 @@
 name = Taxonomy Auto Tagging
 description = Automatically analysis and process the nodes text by matching the terms (and synonyms) against the content of textual fields.
-
 core = 7.x
-version = 7.x-1.x-dev
 package = Taxonomy
-
 dependencies[] = taxonomy
 
 files[] = taxonomy_autotagging.module
 files[] = includes/taxonomy_autotagging.lib.inc
 files[] = includes/taxonomy_autotagging.batch.inc
+files[] = processor/text_processor_en.inc
