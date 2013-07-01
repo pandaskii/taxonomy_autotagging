@@ -45,13 +45,82 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
             if ($instance['settings']['taxonomy_autotagging_case'] != 1) {
                 $key= strtolower($key);
             }
-			if (preg_match("/\b(". $key . "[ieds]*)\b/i", $vector, $matches)) {
-				$fl_array[] = array(
-						'tid' => $term['tid'],
-						'mapping' => $matches[0],
-				);
-                $flag = TRUE;
-			}
+            // analysis the target text with methods regarding the different mode
+            switch($instance['settings']['taxonomy_autotagging_mode']) {
+                case 0:
+                    if (is_int(strpos($vector, $key))) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => '',
+                        );
+                        $flag = TRUE;
+                    }
+                    break;
+                case 1:
+                    if (is_int(strpos($vector, $key))) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => '',
+                        );
+                        $flag = TRUE;
+                    } elseif (is_int(strpos($vector, text_processor_en::pluralize($key)))) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => '',
+                        );
+                        $flag = TRUE;
+                    } else {
+                        if (is_int(strpos($vector, text_processor_en::singularize($key)))) {
+                            $fl_array[] = array(
+                                'tid' => $term['tid'],
+                                'mapping' => '',
+                            );
+                            $flag = TRUE;
+                        }
+                    }
+                    break;
+                case 2:
+                    if (preg_match('/'.$key.'/', $vector, $matches)) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => $matches[0],
+                        );
+                        $flag = TRUE;
+                    }
+                    break;
+                case 3:
+                    if (preg_match("/\b(". $key . "[ieds]*)\b/i", $vector, $matches)) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => $matches[0],
+                        );
+                        $flag = TRUE;
+                    }
+                    break;
+                case 4:
+                    if (preg_match('/'.$key.'/', $vector, $matches)) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => $matches[0],
+                        );
+                        $flag = TRUE;
+                    } elseif (preg_match('/'.text_processor_en::pluralize($key).'/', $vector, $matches)) {
+                        $fl_array[] = array(
+                            'tid' => $term['tid'],
+                            'mapping' => $matches[0],
+                        );
+                        $flag = TRUE;
+                    } else {
+                        if (preg_match('/'.text_processor_en::singularize($key).'/', $vector, $matches)) {
+                            $fl_array[] = array(
+                                'tid' => $term['tid'],
+                                'mapping' => $matches[0],
+                            );
+                            $flag = TRUE;
+                        }
+                    }
+                    break;
+            }
             // if found matching, then break the loop to save performance
             if ($flag === TURE) break 1;
 		}
@@ -60,6 +129,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
     if ($instance['required'] && empty($fl_array)) {
         $fl_array = array_pop(array_keys($terms));
     }
+    dvm($fl_array);
 	return $fl_array;
 }
 

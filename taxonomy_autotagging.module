@@ -45,6 +45,19 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
 					'#description' => t ( 'Default setting is case insensitive, and the text will be conveted to lower case before matching.' ),
 					'#default_value' => isset ( $form ['#instance'] ['settings'] ['taxonomy_autotagging_case'] ) ? $form ['#instance'] ['settings'] ['taxonomy_autotagging_case'] : 0
 			),
+            'taxonomy_autotagging_mode' => array(
+                '#type' => 'radios',
+                '#title' => t('Apply terms automatically by the following method'),
+                '#description' => t('Taxonomy Auto Tagging can analysis the matching terms/synonyms via different method'),
+                '#options' => array(
+                    '0' => t('Match term(s) via strpos (fastest matching but the matching term cannot be caught)'),
+                    '1' => t('Match term(s) with Plural/Singular support via strpos'),
+                    '2' => t('Match term(s) via preg_match (The matching term(s) can be saved in table for further usage such as rendering)'),
+                    '3' => t('Match term(s) with Plural/Singular support via preg_match and regular expressions (Slower but provides better results)'),
+                    '4' => t('Match term(s) with Plural/Singular support via preg_match (Slowest but provides better results)'),
+                ),
+                '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_mode']) ? $form['#instance']['settings']['taxonomy_autotagging_mode'] : 3,
+            ),
 	);
     $fields = array();
     if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
@@ -68,6 +81,7 @@ function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
 	$instance = &$form_state ['values'] ['instance'];
 	$instance ['settings'] ['taxonomy_autotagging_active'] = $form_state ['values'] ['taxonomy_autotagging_active'];
 	$instance ['settings'] ['taxonomy_autotagging_case'] = $form_state ['values'] ['taxonomy_autotagging_case'];
+    $instance ['settings'] ['taxonomy_autotagging_mode'] = $form_state ['values'] ['taxonomy_autotagging_mode'];
     if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
         $instance ['settings'] ['taxonomy_autotagging_synonyms'] = $form_state ['values'] ['taxonomy_autotagging_synonyms'];
     }
