@@ -74,8 +74,10 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $inf
     if (!empty($vector)) {
         //update with the taxonomy auto tagging results
         $analysis = _taxonomy_autotagging_analysis($vector, $terms, $instance);
-        if (!empty($analysis)) {
-            $entity->{$instance['field_name']}['und'] = $analysis;
+        if (!empty($analysis) && is_array($analysis)) {
+            // get $entity language
+            $language = _taxonomy_autotagging_entity_language($entity->type, $entity, $check_language_property = TRUE);
+            $entity->{$instance['field_name']}[$language] = $analysis;
             field_attach_update($instance['entity_type'], $entity);
             $msg = t('Taxonomy auto tagging now');
         } else {
