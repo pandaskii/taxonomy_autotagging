@@ -33,12 +33,11 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
 
 
 /**
- * @param array/object $field
- * @return array $terms
+ * return the terms array/synonyms if the synonyms module is enabled.
  */
 function _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled) {
+    $terms = array();
     $field = field_info_field($field_name);
-	$terms = array();
 	$vocabulary = taxonomy_vocabulary_machine_name_load($field["settings"]["allowed_values"][0]["vocabulary"]);
 	$tree = taxonomy_get_tree($vocabulary->vid, 0, NULL, TRUE);
 	foreach ($tree as $term) {
