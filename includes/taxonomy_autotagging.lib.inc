@@ -129,7 +129,6 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
     if ($instance['required'] && empty($fl_array)) {
         $fl_array = array_pop(array_keys($terms));
     }
-    dvm($fl_array);
 	return $fl_array;
 }
 

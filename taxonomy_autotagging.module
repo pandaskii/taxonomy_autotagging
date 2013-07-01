@@ -45,6 +45,12 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
 					'#description' => t ( 'Default setting is case insensitive, and the text will be conveted to lower case before matching.' ),
 					'#default_value' => isset ( $form ['#instance'] ['settings'] ['taxonomy_autotagging_case'] ) ? $form ['#instance'] ['settings'] ['taxonomy_autotagging_case'] : 0
 			),
+            'taxonomy_autotagging_storage' => array (
+                '#type' => 'checkbox',
+                '#title' => t ( 'Saving the matching results in database' ),
+                '#description' => t ( 'By saving the results in database, it can be used via API for rendering etc. This setting only works with the preg_match method.' ),
+                '#default_value' => isset ( $form ['#instance'] ['settings'] ['taxonomy_autotagging_storage'] ) ? $form ['#instance'] ['settings'] ['taxonomy_autotagging_storage'] : 0
+            ),
             'taxonomy_autotagging_mode' => array(
                 '#type' => 'radios',
                 '#title' => t('Apply terms automatically by the following method'),
@@ -82,6 +88,7 @@ function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
 	$instance ['settings'] ['taxonomy_autotagging_active'] = $form_state ['values'] ['taxonomy_autotagging_active'];
 	$instance ['settings'] ['taxonomy_autotagging_case'] = $form_state ['values'] ['taxonomy_autotagging_case'];
     $instance ['settings'] ['taxonomy_autotagging_mode'] = $form_state ['values'] ['taxonomy_autotagging_mode'];
+    $instance ['settings'] ['taxonomy_autotagging_storage'] = $form_state ['values'] ['taxonomy_autotagging_storage'];
     if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
         $instance ['settings'] ['taxonomy_autotagging_synonyms'] = $form_state ['values'] ['taxonomy_autotagging_synonyms'];
     }
@@ -101,7 +108,7 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
     foreach ($field_info['node'][$form['type']['#value']] as $field) {
         if (isset($field['settings']['taxonomy_autotagging_active']) && $field['settings']['taxonomy_autotagging_active'] == '1') {
             $field_autotag = $field;
-            $existing = db_select('taxonomy_autotagging_node','tan')->condition('entity_id',$form['nid'])->condition('field_name',$field_autotag['field_name'],'like')->fields('tan',array('status'))->execute();
+            $existing = db_select('taxonomy_autotagging_setting','tan')->condition('entity_id',$form['nid'])->condition('field_name',$field_autotag['field_name'],'like')->fields('tan',array('status'))->execute();
             $existing_value = $existing->fetchField();
             $existing_value = ($existing_value===FALSE) ? '1' : $existing_value;
             $form[$field_autotag['field_name']]['taxonomy_autotagging_active'] = array(
@@ -112,7 +119,7 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
             );
         }
     }
-    $form['#submit'][] = '_taxonomy_autotagging_node_form_submit';
+    $form['#submit'][] = '_taxonomy_autotagging_setting_form_submit';
 }
 
 /**
@@ -120,7 +127,7 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
  * @param $form
  * @param $form_state
  */
-function _taxonomy_autotagging_node_form_submit($form, &$form_state) {
+function _taxonomy_autotagging_setting_form_submit($form, &$form_state) {
     $op = $form_state['values']['op'];
     if ($op == 'Save') {
         // prepare the taxonomy autotagging fields
@@ -138,11 +145,11 @@ function _taxonomy_autotagging_node_form_submit($form, &$form_state) {
                 );
                 // save them into database
                 if (is_array($taxonomy_autotagging_field_config) && !empty($taxonomy_autotagging_field_config)) {
-                    $existing = db_select('taxonomy_autotagging_node','tan')->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like')->fields('tan',array('status'))->execute();
+                    $existing = db_select('taxonomy_autotagging_setting','tan')->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like')->fields('tan',array('status'))->execute();
                     if ($existing->fetchField()===FALSE) {
-                        db_insert('taxonomy_autotagging_node')->fields($taxonomy_autotagging_field_config)->execute();
+                        db_insert('taxonomy_autotagging_setting')->fields($taxonomy_autotagging_field_config)->execute();
                     } else {
-                        db_update('taxonomy_autotagging_node')->fields($taxonomy_autotagging_field_config)->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like')->execute();
+                        db_update('taxonomy_autotagging_setting')->fields($taxonomy_autotagging_field_config)->condition('entity_id',$taxonomy_autotagging_field_config['entity_id'])->condition('field_name',$taxonomy_autotagging_field_config['field_name'],'like')->execute();
                     }
 
                 }

@@ -8,12 +8,11 @@ function _taxonomy_autotagging_process_all($instance)
     // check if taxonomy auto tagging is active
     $taxonomy_autotagging_active = isset($instance['settings']['taxonomy_autotagging_active']) ? $instance['settings']['taxonomy_autotagging_active'] : 0;
     if ($taxonomy_autotagging_active == 1) {
-        $info = entity_get_info($instance ['entity_type']);
         // get all the entity ids from the bundle
         // prepare the ids
         $bundle = $instance ['bundle'];
         $field_name = $instance ['field_name'];
-        $entity_results = db_query('select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {taxonomy_autotagging_node} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)',
+        $entity_results = db_query('select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {taxonomy_autotagging_setting} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)',
             array(
                 ':type' => $bundle,
                 ':field_name' => $field_name,
@@ -44,7 +43,6 @@ function _taxonomy_autotagging_process_all($instance)
                         $terms,
                         $instance,
                         $id,
-                        $info
                     )
                 );
             }
@@ -66,10 +64,13 @@ function _taxonomy_autotagging_process_all($instance)
 /**
  * Runs the batch process for one entity
  */
-function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $info, &$context)
+function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$context)
 {
     $time_start = microtime(true);
     //get the tokenized vector at first
+    $info = entity_get_info($instance ['entity_type']);
+    if (!is_array($info) && empty($info)) return;
+
     $entity = $info['load hook']($id);
     $vector = _taxonomy_autotagging_entity_tokenize($entity);
 
@@ -81,6 +82,34 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $inf
             $language = _taxonomy_autotagging_entity_language($entity->type, $entity, $check_language_property = TRUE);
             $entity->{$instance['field_name']}[$language] = $analysis;
             field_attach_update($instance['entity_type'], $entity);
+            if ($instance['settings']['taxonomy_autotagging_storage'] == 1) {
+                $taxonomy_autotagging_node = array(
+                    'entity_type' => $instance['entity_type'],
+                    'entity_id' =>  $id,
+                    'language' => $language,
+                    'bundle' => $instance['bundle'],
+                    'field_name' => $instance['field_name'],
+                    'data' => serialize($analysis),
+                    'changed' => REQUEST_TIME,
+                );
+                // save them into database
+                if (is_array($taxonomy_autotagging_node) && !empty($taxonomy_autotagging_node)) {
+                    $existing = db_select('taxonomy_autotagging_node','tan')
+                                ->condition('entity_id',$taxonomy_autotagging_node['entity_id'])
+                                ->condition('field_name',$taxonomy_autotagging_node['field_name'])
+                                ->fields('tan',array('entity_id'))
+                                ->execute();
+                    if ($existing->fetchField()===FALSE) {
+                        db_insert('taxonomy_autotagging_node')->fields($taxonomy_autotagging_node)->execute();
+                    } else {
+                        db_update('taxonomy_autotagging_node')
+                            ->fields($taxonomy_autotagging_node)
+                            ->condition('entity_id',$taxonomy_autotagging_node['entity_id'])
+                            ->condition('field_name',$taxonomy_autotagging_node['field_name'])
+                            ->execute();
+                    }
+                }
+            }
             $msg = t('Taxonomy auto tagging now');
         } else {
             $msg = t('nothing found');

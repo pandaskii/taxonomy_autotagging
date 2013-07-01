@@ -9,8 +9,8 @@
  */
 function taxonomy_autotagging_schema(){
     $schema = array();
-    $schema['taxonomy_autotagging_node'] = array(
-        'description' => 'Stores information of taxonomy autotagging enabled/disabled node(s).',
+    $schema['taxonomy_autotagging_setting'] = array(
+        'description' => 'Stores setting(s) of taxonomy autotagging.',
         'fields' => array(
             'entity_type' => array(
                 'description' => 'The type of entity.',
@@ -57,6 +57,60 @@ function taxonomy_autotagging_schema(){
         ),
         'indexes' => array(
             'entity_id'   => array('entity_id'),
+            'language' => array('language'),
+            'bundle' => array('bundle'),
+            'field_name'   => array('field_name'),
+        ),
+    );
+    $schema['taxonomy_autotagging_node'] = array(
+        'description' => 'Stores information of taxonomy autotagging enabled/disabled node(s).',
+        'fields' => array(
+            'entity_type' => array(
+                'description' => 'The type of entity.',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+            ),
+            'entity_id' => array(
+                'description' => 'The primary identifier for an entity.',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+            ),
+            'language' => array(
+                'description' => 'The language for this data item.',
+                'type' => 'varchar',
+                'length' => 32,
+                'not null' => TRUE,
+            ),
+            'bundle' => array(
+                'description' => 'The bundle to which this entity belongs.',
+                'type' => 'varchar',
+                'length' => 128,
+                'not null' => TRUE,
+            ),
+            'field_name' => array(
+                'description' => 'The field name with the taxonomy autotagging.',
+                'type' => 'varchar',
+                'length' => 128,
+                'not null' => TRUE,
+            ),
+            'data' => array(
+                'description' => 'The matching data.',
+                'type' => 'blob',
+                'not null' => TRUE,
+            ),
+            'changed' => array(
+                'description' => 'The Unix timestamp when an entity was changed.',
+                'type' => 'int',
+                'not null' => TRUE,
+                'default' => 0,
+            ),
+        ),
+        'indexes' => array(
+            'entity_id'   => array('entity_id'),
+            'language' => array('language'),
+            'bundle' => array('bundle'),
             'field_name'   => array('field_name'),
         ),
     );
