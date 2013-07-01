@@ -31,8 +31,9 @@ function _taxonomy_autotagging_process_all($instance)
                 'error_message' => t('Updating of auto tagging terms encountered an error.')
             );
 
-            //preoare the taxonomy terms/synonyms
-            $terms = _taxonomy_autotagging_prepare_terms($field_name);
+            //prepare the taxonomy terms/synonyms
+            $synonyms_enabled = isset($instance['settings']['taxonomy_autotagging_synonyms']) ? $instance['settings']['taxonomy_autotagging_synonyms'] : 0;
+            $terms = _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled);
 
             foreach ($entity_ids as $id) {
                 // We create a new process for each entity, as a means of keeping the

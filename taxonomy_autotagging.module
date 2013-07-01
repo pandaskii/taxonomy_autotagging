@@ -68,6 +68,9 @@ function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
 	$instance = &$form_state ['values'] ['instance'];
 	$instance ['settings'] ['taxonomy_autotagging_active'] = $form_state ['values'] ['taxonomy_autotagging_active'];
 	$instance ['settings'] ['taxonomy_autotagging_case'] = $form_state ['values'] ['taxonomy_autotagging_case'];
+    if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
+        $instance ['settings'] ['taxonomy_autotagging_synonyms'] = $form_state ['values'] ['taxonomy_autotagging_synonyms'];
+    }
 	field_update_instance ( $instance );
 
 	if ($form_state ['values'] ['op'] == t ( 'Run the taxonomy auto tagging' )) {

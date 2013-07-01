@@ -36,20 +36,22 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
  * @param array/object $field
  * @return array $terms
  */
-function _taxonomy_autotagging_prepare_terms($field_name) {
+function _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled) {
     $field = field_info_field($field_name);
 	$terms = array();
 	$vocabulary = taxonomy_vocabulary_machine_name_load($field["settings"]["allowed_values"][0]["vocabulary"]);
 	$tree = taxonomy_get_tree($vocabulary->vid, 0, NULL, TRUE);
 	foreach ($tree as $term) {
-		$termlist = array($term->name);
-		$synonyms = synonyms_get_term_synonyms($term);
-		foreach ($synonyms as $synonym) {
-			$termlist[] = $synonym['value'];
-		}
+		$terms = array($term->name);
+        if ($synonyms_enabled == 1) {
+            $synonyms = synonyms_get_term_synonyms($term);
+            foreach ($synonyms as $synonym) {
+                $terms[] = $synonym['value'];
+            }
+        }
 		$terms[] = array(
 			'tid' => $term->tid,
-			'name' => $termlist,
+			'name' => $terms,
 		);
 	}
 	return $terms;
