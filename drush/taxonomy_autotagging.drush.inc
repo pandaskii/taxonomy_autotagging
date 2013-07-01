@@ -38,22 +38,23 @@ function taxonomy_autotagging_drush_process_all()
         }
     }
 
-    if (!function_exists('drush_taxonomy_autotagging')) {
-        drush_set_error(dt("The function '@fucname' is not found.", array('@fucname' => 'drush_taxonomy_autotagging')));
+    if (!function_exists('_drush_taxonomy_autotagging')) {
+        drush_set_error(dt("The function '@fucname' is not found.", array('@fucname' => '_drush_taxonomy_autotagging')));
     } else {
         if (is_array($instances) && !empty($instances)) {
             foreach ($instances as $instance) {
-                drush_taxonomy_autotagging($instance);
+                drush_print('Processing '.$instance['bundle'].' with Taxonomy field '.$instance ['field_name']);
+                _drush_taxonomy_autotagging($instance);
             }
         } else {
             drush_set_error(dt('We cannot find the instance for Taxonomy Auto Tagging.'));
         }
     }
 
-    drush_print(t('Updating Taxonomy Terms matching for all the nodes'));
+    drush_print(t('Updated Taxonomy Terms matching for all the nodes'));
 }
 
-function drush_taxonomy_autotagging($instance)
+function _drush_taxonomy_autotagging($instance)
 {
     // check if taxonomy auto tagging is active
     $taxonomy_autotagging_active = isset($instance['settings']['taxonomy_autotagging_active']) ? $instance['settings']['taxonomy_autotagging_active'] : 0;
@@ -122,14 +123,8 @@ function drush_taxonomy_autotagging($instance)
 function _drush_taxonomy_autotagging_batch_finished($success, $results, $operations)
 {
     if ($success) {
-        $message = count($results) . ' processed by Taxonomy Auto Tagging Command.';
+        $message = format_plural(count($results), 'One post processed by Taxonomy Auto Tagging Command.', '@count posts processed.');
     } else {
-        $error_operation = reset($operations);
-        $message = t('An error occurred while processing %error_operation with arguments: @arguments', array(
-            '%error_operation' => $error_operation [0],
-            '@arguments' => print_r($error_operation [1], TRUE)
-        ));
+        $message = t('Finished with an error.');
     }
-    drush_print($message);
-    drush_log('Updating Taxonomy Terms matching for all the nodes', 'Successful');
 }
