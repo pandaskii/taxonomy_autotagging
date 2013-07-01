@@ -110,7 +110,7 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$co
                     }
                 }
             }
-            $msg = t('Taxonomy auto tagging now');
+            $msg = t('Found matching terms, and Taxonomy auto tagging now');
         } else {
             $msg = t('nothing found');
         }

@@ -122,7 +122,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
                     break;
             }
             // if found matching, then break the loop to save performance
-            if ($flag === TURE) break 1;
+            if ($flag === TRUE) break 1;
 		}
 	}
     // if the taxonomy filed is required and we can find nothing, we will use the last one to avoid the error.
@@ -136,7 +136,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
  * return the terms array/synonyms if the synonyms module is enabled.
  */
 function _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled) {
-    $terms = array();
+    $termsArray = array();
     $field = field_info_field($field_name);
 	$vocabulary = taxonomy_vocabulary_machine_name_load($field["settings"]["allowed_values"][0]["vocabulary"]);
 	$tree = taxonomy_get_tree($vocabulary->vid, 0, NULL, TRUE);
@@ -148,12 +148,12 @@ function _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled) {
                 $terms[] = $synonym['value'];
             }
         }
-		$terms[] = array(
+		$termsArray[] = array(
 			'tid' => $term->tid,
 			'name' => $terms,
 		);
 	}
-	return $terms;
+	return $termsArray;
 }
 
 /**
