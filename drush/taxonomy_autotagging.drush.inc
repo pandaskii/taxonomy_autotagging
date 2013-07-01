@@ -122,13 +122,14 @@ function _drush_taxonomy_autotagging_batch_finished($success, $results, $operati
 {
     if ($success) {
         $message = format_plural(count($results), 'One post processed by Taxonomy Auto Tagging Command.', '@count posts processed.');
+        drush_print($message);
     } else {
         // An error occurred.
         // $operations contains the operations that remained unprocessed.
         $error_operation = reset($operations);
         if (!empty($error_operation[0])) {
             $message = t('An error occurred while processing @operation with arguments: @args', array('@operation' => $error_operation[0], '@args' => print_r($error_operation[0], TRUE)));
+            drush_print($message);
         }
     }
-    drush_print($message);
 }
