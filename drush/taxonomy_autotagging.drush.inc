@@ -98,11 +98,11 @@ function _drush_taxonomy_autotagging($instance)
                     )
                 );
             }
-
-            batch_set($batch);
-            $batch =& batch_get();
             $batch['progressive'] = FALSE;
+            batch_set($batch);
             drush_backend_batch_process();
+            $batch =& batch_get();
+            $batch['current_set']++;
         } else {
             $message = dt('Taxonomy Auto Tagging cannot find the nodes which require the auto tagging, please check if you disable the auotagging with this vocabulary.');
             drupal_set_message($message, 'warning');
@@ -113,8 +113,6 @@ function _drush_taxonomy_autotagging($instance)
         drupal_set_message($message, 'warning');
         return;
     }
-    // finish the batch process
-    $batch['current_set'] = 1;
 }
 
 /**
@@ -125,7 +123,12 @@ function _drush_taxonomy_autotagging_batch_finished($success, $results, $operati
     if ($success) {
         $message = format_plural(count($results), 'One post processed by Taxonomy Auto Tagging Command.', '@count posts processed.');
     } else {
-        $message = t('Finished with an error.');
+        // An error occurred.
+        // $operations contains the operations that remained unprocessed.
+        $error_operation = reset($operations);
+        if (!empty($error_operation[0])) {
+            $message = t('An error occurred while processing @operation with arguments: @args', array('@operation' => $error_operation[0], '@args' => print_r($error_operation[0], TRUE)));
+        }
     }
     drush_print($message);
 }
