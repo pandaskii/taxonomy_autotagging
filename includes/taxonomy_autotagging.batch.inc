@@ -54,10 +54,12 @@ function _taxonomy_autotagging_process_all($instance)
         } else {
             $message = t('Taxonomy Auto Tagging cannot find the nodes which require the auto tagging, please check if you disable the auotagging with this vocabulary.');
             drupal_set_message($message, 'warning');
+            return;
         }
     } else {
         $message = t('Taxonomy Auto Tagging is disabled, please enable it firstly.');
         drupal_set_message($message, 'warning');
+        return;
     }
 }
 
