@@ -24,9 +24,17 @@ function _taxonomy_autotagging_entity_tokenize($entity) {
  * @return array
  */
 function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
+    if ($instance['settings']['taxonomy_autotagging_active'] == 0) return;
+    // if case sensitive, then ignore the following lower case process
+    if ($instance['settings']['taxonomy_autotagging_case'] != 1) {
+        $vector= strtolower($vector);
+    }
 	$fl_array = array();
 	foreach ($terms as $term) {
 		foreach ($term['name'] as $key) {
+            if ($instance['settings']['taxonomy_autotagging_case'] != 1) {
+                $key= strtolower($key);
+            }
 			if (preg_match("/\b(". $key . "[ieds]*)\b/i", $vector, $matches)) {
 				$fl_array[] = array(
 						'tid' => $term['tid'],
