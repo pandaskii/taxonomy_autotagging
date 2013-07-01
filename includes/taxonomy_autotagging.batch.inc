@@ -71,14 +71,18 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, $inf
     $entity = $info['load hook']($id);
     $vector = _taxonomy_autotagging_entity_tokenize($entity);
 
-    //update with the taxonomy autotagging results
-    $analysis = _taxonomy_autotagging_analysis($vector, $terms, $instance);
-    if (!empty($analysis)) {
-        $entity->{$instance['field_name']}['und'] = $analysis;
-        field_attach_update($instance['entity_type'], $entity);
-        $msg = 'Taxonomy auto tagging now';
+    if (!empty($vector)) {
+        //update with the taxonomy auto tagging results
+        $analysis = _taxonomy_autotagging_analysis($vector, $terms, $instance);
+        if (!empty($analysis)) {
+            $entity->{$instance['field_name']}['und'] = $analysis;
+            field_attach_update($instance['entity_type'], $entity);
+            $msg = t('Taxonomy auto tagging now');
+        } else {
+            $msg = t('nothing found');
+        }
     } else {
-        $msg = 'nothing found';
+        $msg = t('the node is empty, so we ignored it to the next');
     }
 
     $time_end = microtime(true);
