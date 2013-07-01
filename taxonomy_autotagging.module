@@ -120,7 +120,7 @@ function _taxonomy_autotagging_node_form_submit($form, &$form_state) {
                     'bundle' => $field['bundle'],
                     'field_name' => $field['field_name'],
                     'status' => $form_state['values'][$field['field_name']]['taxonomy_autotagging_active'],
-                    'changed' => time(),
+                    'changed' => REQUEST_TIME,
                 );
                 // save them into database
                 if (is_array($taxonomy_autotagging_field_config) && !empty($taxonomy_autotagging_field_config)) {
