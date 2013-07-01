@@ -29,9 +29,19 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
     if ($instance['settings']['taxonomy_autotagging_case'] != 1) {
         $vector= strtolower($vector);
     }
+    // get the max limit from the field settings
+    $field = field_info_field($instance['field_name']);
+    $max = $field['cardinality'] = -1 ? 100 : $field['cardinality'];
+    // start the matching analysis process
 	$fl_array = array();
 	foreach ($terms as $term) {
+        // stop matching analysis process while over the max tags settings
+        if (count($fl_array) >= $max ) {
+            drupal_set_message('stopping the process because the max number has been achieved with the max values setting - ' .$max);
+            break;
+        }
 		foreach ($term['name'] as $key) {
+            $flag = FALSE;
             if ($instance['settings']['taxonomy_autotagging_case'] != 1) {
                 $key= strtolower($key);
             }
@@ -40,12 +50,18 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
 						'tid' => $term['tid'],
 						'mapping' => $matches[0],
 				);
+                $flag = TRUE;
 			}
+            // if found matching, then break the loop to save performance
+            if ($flag === TURE) break 1;
 		}
 	}
+    // if the taxonomy filed is required and we can find nothing, we will use the last one to avoid the error.
+    if ($instance['required'] && empty($fl_array)) {
+        $fl_array = array_pop(array_keys($terms));
+    }
 	return $fl_array;
 }
-
 
 /**
  * return the terms array/synonyms if the synonyms module is enabled.
