@@ -122,6 +122,9 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$co
     $time = $time_end - $time_start;
 
     // Update batch progress information.
+    if(!isset($context['results']['processed'])) {
+        $context['results']['processed'] = 0;
+    }
     $context['results']['processed']++;
     $context['message'] = 'We are processing with node - ' . $id;
     $context['message'] .= ' - ' . $msg;

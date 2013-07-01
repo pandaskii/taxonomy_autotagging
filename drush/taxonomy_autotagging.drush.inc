@@ -127,4 +127,5 @@ function _drush_taxonomy_autotagging_batch_finished($success, $results, $operati
     } else {
         $message = t('Finished with an error.');
     }
+    drush_print($message);
 }
