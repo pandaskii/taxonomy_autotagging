@@ -76,7 +76,7 @@ class TaxonomyAutoTaggingTextProcessorEn {
   /**
    * Singularizes English nouns.
    */
-  public static function  singularize($word) {
+  public static function singularize($word) {
     $singular = array(
       '/(quiz)zes$/i' => '\1',
       '/(matr)ices$/i' => '\1ix',
@@ -104,7 +104,16 @@ class TaxonomyAutoTaggingTextProcessorEn {
       '/s$/i' => '',
     );
 
-    $uncountable = array('equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep');
+    $uncountable = array(
+      'equipment',
+      'information',
+      'rice',
+      'money',
+      'species',
+      'series',
+      'fish',
+      'sheep',
+    );
 
     $irregular = array(
       'person' => 'people',
@@ -200,20 +209,16 @@ class TaxonomyAutoTaggingTextProcessorEn {
     else {
       switch (($number % 10)) {
         case 1:
-          return $number . 'st';
-          break;
+        return $number . 'st';
 
         case 2:
-          return $number . 'nd';
-          break;
+        return $number . 'nd';
 
         case 3:
-          return $number . 'rd';
-          break;
+        return $number . 'rd';
 
         default:
-          return $number . 'th';
-          break;
+        return $number . 'th';
       }
     }
   }
