@@ -4,6 +4,7 @@
  * @file
  * Install and related hooks for taxonomy autotagging.
  */
+
 /**
  * Implements hook_schema().
  */

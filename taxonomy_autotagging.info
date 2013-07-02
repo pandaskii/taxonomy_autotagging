@@ -4,7 +4,4 @@ core = 7.x
 package = Taxonomy
 dependencies[] = taxonomy
 
-files[] = taxonomy_autotagging.module
-files[] = includes/taxonomy_autotagging.lib.inc
-files[] = includes/taxonomy_autotagging.batch.inc
-files[] = processor/taxonomy_autotagging_text_processor_en.inc
+files[] = processor/TaxonomyAutoTaggingTextProcessorEn.inc
