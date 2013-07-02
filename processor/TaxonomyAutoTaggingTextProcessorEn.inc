@@ -8,12 +8,6 @@
 class TaxonomyAutoTaggingTextProcessorEn {
   /**
    * Pluralizes English nouns.
-   *
-   * @access public
-   * @static
-   * @param    string $word    English noun to pluralize
-   * @return string Plural noun
-   *
    */
   public static function pluralize($word) {
     $plural = array(
@@ -81,12 +75,6 @@ class TaxonomyAutoTaggingTextProcessorEn {
 
   /**
    * Singularizes English nouns.
-   *
-   * @access public
-   * @static
-   * @param    string $word    English noun to singularize
-   * @return string Singular noun.
-   *
    */
   public static function  singularize($word) {
     $singular = array(
@@ -123,7 +111,7 @@ class TaxonomyAutoTaggingTextProcessorEn {
       'man' => 'men',
       'child' => 'children',
       'sex' => 'sexes',
-      'move' => 'moves'
+      'move' => 'moves',
     );
 
     $lowercased_word = strtolower($word);
@@ -149,23 +137,7 @@ class TaxonomyAutoTaggingTextProcessorEn {
   }
 
   /**
-   * Converts an underscored or CamelCase word into a English
-   * sentence.
-   *
-   * The titleize function converts text like "WelcomePage",
-   * "welcome_page" or  "welcome page" to this "Welcome
-   * Page".
-   * If second parameter is set to 'first' it will only
-   * capitalize the first character of the title.
-   *
-   * @access public
-   * @static
-   * @param    string $word    Word to format as tile
-   * @param    string $uppercase    If set to 'first' it will only uppercase the
-   * first character. Otherwise it will uppercase all
-   * the words in the title.
-   * @return string Text formatted as title
-   *
+   * Converts an underscored or CamelCase.
    */
   public static function titleize($word, $uppercase = '') {
     $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
@@ -173,36 +145,14 @@ class TaxonomyAutoTaggingTextProcessorEn {
   }
 
   /**
-   * Returns given word as CamelCased
-   *
-   * Converts a word like "send_email" to "SendEmail". It
-   * will remove non alphanumeric character from the word, so
-   * "who's online" will be converted to "WhoSOnline"
-   *
-   * @access public
-   * @static
-   * @see variablize
-   * @param    string $word    Word to convert to camel case
-   * @return string UpperCamelCasedWord
-   *
+   * Returns given word as CamelCased.
    */
   public static function camelize($word) {
     return str_replace(' ', '', ucwords(preg_replace('/[^A-Z^a-z^0-9]+/', ' ', $word)));
   }
 
   /**
-   * Converts a word "into_it_s_underscored_version"
-   *
-   * Convert any "CamelCased" or "ordinary Word" into an
-   * "underscored_word".
-   *
-   * This can be really useful for creating friendly URLs.
-   *
-   * @access public
-   * @static
-   * @param    string $word    Word to underscore
-   * @return string Underscored word
-   *
+   * Converts a word "into_it_s_underscored_version".
    */
   public static function underscore($word) {
     return strtolower(preg_replace('/[^A-Z^a-z^0-9]+/', '_',
@@ -211,22 +161,7 @@ class TaxonomyAutoTaggingTextProcessorEn {
   }
 
   /**
-   * Returns a human-readable string from $word
-   *
-   * Returns a human-readable string from $word, by replacing
-   * underscores with a space, and by upper-casing the initial
-   * character by default.
-   *
-   * If you need to uppercase all the words you just have to
-   * pass 'all' as a second parameter.
-   *
-   * @access public
-   * @static
-   * @param    string $word    String to "humanize"
-   * @param    string $uppercase    If set to 'all' it will uppercase all the words
-   * instead of just the first one.
-   * @return string Human-readable word
-   *
+   * Returns a human-readable string from $word.
    */
   public static function humanize($word, $uppercase = '') {
     $uppercase = $uppercase == 'all' ? 'ucwords' : 'ucfirst';
@@ -234,18 +169,7 @@ class TaxonomyAutoTaggingTextProcessorEn {
   }
 
   /**
-   * Same as camelize but first char is underscored
-   *
-   * Converts a word like "send_email" to "sendEmail". It
-   * will remove non alphanumeric character from the word, so
-   * "who's online" will be converted to "whoSOnline"
-   *
-   * @access public
-   * @static
-   * @see camelize
-   * @param    string $word    Word to lowerCamelCase
-   * @return string Returns a lowerCamelCasedWord
-   *
+   * Same as camelize but first char is underscored.
    */
   public static function variablize($word) {
     $word = Inflector::camelize($word);
@@ -253,34 +177,14 @@ class TaxonomyAutoTaggingTextProcessorEn {
   }
 
   /**
-   * Converts a class name to its table name according to rails
-   * naming conventions.
-   *
-   * Converts "Person" to "people"
-   *
-   * @access public
-   * @static
-   * @see classify
-   * @param    string $class_name    Class name for getting related table_name.
-   * @return string plural_table_name
-   *
+   * Converts a class name to its table name according to rails.
    */
   public static function tableize($class_name) {
     return Inflector::pluralize(Inflector::underscore($class_name));
   }
 
   /**
-   * Converts a table name to its class name according to rails
-   * naming conventions.
-   *
-   * Converts "people" to "Person"
-   *
-   * @access public
-   * @static
-   * @see tableize
-   * @param    string $table_name    Table name for getting related ClassName.
-   * @return string SingularClassName
-   *
+   * Converts a table name to its class name according to rails.
    */
   public static function classify($table_name) {
     return Inflector::camelize(Inflector::singularize($table_name));
@@ -288,14 +192,6 @@ class TaxonomyAutoTaggingTextProcessorEn {
 
   /**
    * Converts number to its ordinal English form.
-   *
-   * This method converts 13 to 13th, 2 to 2nd ...
-   *
-   * @access public
-   * @static
-   * @param    integer $number    Number to get its ordinal value
-   * @return string Ordinal representation of given string.
-   *
    */
   public static function ordinalize($number) {
     if (in_array(($number % 100), range(11, 13))) {
@@ -306,11 +202,15 @@ class TaxonomyAutoTaggingTextProcessorEn {
         case 1:
           return $number . 'st';
           break;
+
         case 2:
           return $number . 'nd';
           break;
+
         case 3:
           return $number . 'rd';
+          break;
+
         default:
           return $number . 'th';
           break;
