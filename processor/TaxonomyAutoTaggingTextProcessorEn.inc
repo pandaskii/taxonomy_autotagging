@@ -209,16 +209,16 @@ class TaxonomyAutoTaggingTextProcessorEn {
     else {
       switch (($number % 10)) {
         case 1:
-        return $number . 'st';
+          return $number . 'st';
 
         case 2:
-        return $number . 'nd';
+          return $number . 'nd';
 
         case 3:
-        return $number . 'rd';
+          return $number . 'rd';
 
         default:
-        return $number . 'th';
+          return $number . 'th';
       }
     }
   }
