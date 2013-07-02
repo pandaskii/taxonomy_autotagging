@@ -6,17 +6,16 @@
  */
 
 /**
- * Batch process all the nodes
- * @param $instance
+ * Batch process all the nodes.
  */
 function _taxonomy_autotagging_process_all($instance) {
-  // check if taxonomy auto tagging is active
+  // Check if taxonomy auto tagging is active.
   $taxonomy_autotagging_active = isset($instance['settings']['taxonomy_autotagging_active']) ? $instance['settings']['taxonomy_autotagging_active'] : 0;
   if ($taxonomy_autotagging_active == 1) {
-    // get all the entity ids from the bundle
-    // prepare the ids
-    $bundle = $instance ['bundle'];
-    $field_name = $instance ['field_name'];
+    // Get all the entity ids from the bundle.
+    // Prepare the ids.
+    $bundle = $instance['bundle'];
+    $field_name = $instance['field_name'];
     $entity_results = db_query('select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {taxonomy_autotagging_setting} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)',
       array(
         ':type' => $bundle,
@@ -25,30 +24,30 @@ function _taxonomy_autotagging_process_all($instance) {
     $entity_total = $entity_results->rowCount();
     if ($entity_total > 0) {
       $entity_ids = $entity_results->fetchCol();
-      // Using Batch API for bulk autocategorising
+      // Using Batch API for bulk processing.
       $batch = array(
         'title' => t('Taxonomy Auto Tagging'),
         'operations' => array(),
         'finished' => '_taxonomy_autotagging_batch_finished',
         'init_message' => t('Initializing...'),
         'progress_message' => t('Processing @current out of @total instances.'),
-        'error_message' => t('Updating of auto tagging terms encountered an error.')
+        'error_message' => t('Updating of auto tagging terms encountered an error.'),
       );
 
-      //prepare the taxonomy terms/synonyms
+      // Prepare the taxonomy terms/synonyms.
       $synonyms_enabled = isset($instance['settings']['taxonomy_autotagging_synonyms']) ? $instance['settings']['taxonomy_autotagging_synonyms'] : 0;
       $terms = _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled);
 
       foreach ($entity_ids as $id) {
-        // We create a new process for each entity, as a means of keeping the
-        // batch process more transparent
-        $batch ['operations'] [] = array(
+        // We create a new process for each entity, as a means of keeping the.
+        // batch process more transparent.
+        $batch['operations'][] = array(
           '_taxonomy_autotagging_batch_process_single',
           array(
             $terms,
             $instance,
             $id,
-          )
+          ),
         );
       }
 
@@ -67,12 +66,12 @@ function _taxonomy_autotagging_process_all($instance) {
 }
 
 /**
- * Runs the batch process for one entity
+ * Runs the batch process for one entity.
  */
 function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$context) {
   $time_start = microtime(TRUE);
-  //get the tokenized vector at first
-  $info = entity_get_info($instance ['entity_type']);
+  // Get the tokenized vector at first.
+  $info = entity_get_info($instance['entity_type']);
   if (!is_array($info) && empty($info)) {
     return;
   }
@@ -81,10 +80,10 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$co
   $vector = _taxonomy_autotagging_entity_tokenize($entity);
 
   if (!empty($vector)) {
-    //update with the taxonomy auto tagging results
+    // Update with the taxonomy auto tagging results.
     $analysis = _taxonomy_autotagging_analysis($vector, $terms, $instance);
     if (!empty($analysis) && is_array($analysis)) {
-      // get $entity language
+      // Get $entity language.
       $language = _taxonomy_autotagging_entity_language($entity->type, $entity, $check_language_property = TRUE);
       $entity->{$instance['field_name']}[$language] = $analysis;
       field_attach_update($instance['entity_type'], $entity);
@@ -98,7 +97,7 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$co
           'data' => serialize($analysis),
           'changed' => REQUEST_TIME,
         );
-        // save them into database
+        // Save them into database.
         if (is_array($taxonomy_autotagging_node) && !empty($taxonomy_autotagging_node)) {
           $existing = db_select('taxonomy_autotagging_node', 'tan')
             ->condition('entity_id', $taxonomy_autotagging_node['entity_id'])
@@ -152,7 +151,7 @@ function _taxonomy_autotagging_batch_finished($success, $results, $operations) {
     $error_operation = reset($operations);
     $message = t('An error occurred while processing %error_operation with arguments: @arguments', array(
       '%error_operation' => $error_operation [0],
-      '@arguments' => print_r($error_operation [1], TRUE)
+      '@arguments' => print_r($error_operation [1], TRUE),
     ));
   }
   drupal_set_message($message);
