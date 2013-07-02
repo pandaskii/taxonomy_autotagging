@@ -88,7 +88,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
  * Form callback to update the configurations.
  */
 function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
-  $instance = &$form_state ['values']['instance'];
+  $instance = &$form_state['values']['instance'];
   $instance['settings']['taxonomy_autotagging_active'] = $form_state['values']['taxonomy_autotagging_active'];
   $instance['settings']['taxonomy_autotagging_case'] = $form_state['values']['taxonomy_autotagging_case'];
   $instance['settings']['taxonomy_autotagging_mode'] = $form_state['values']['taxonomy_autotagging_mode'];
