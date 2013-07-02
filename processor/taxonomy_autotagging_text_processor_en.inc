@@ -3,7 +3,7 @@
  * @file Taxonomy Auto Tagging module English Text Processor.
  */
 
-class Text_processor_en {
+class taxonomy_autotagging_text_processor_en {
   /**
    * Pluralizes English nouns.
    *
