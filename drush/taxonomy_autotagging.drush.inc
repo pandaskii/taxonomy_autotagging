@@ -1,13 +1,12 @@
 <?php
+
 /**
- * @file Taxonomy Auto Tagging drush file.
+ * @file
+ * Taxonomy Auto Tagging drush file.
  */
 
 /**
  * Implements hook_drush_command().
- *
- * @return array
- *   An associative array describing your command(s).
  */
 function taxonomy_autotagging_drush_command() {
   $items = array();
@@ -26,7 +25,7 @@ function taxonomy_autotagging_drush_command() {
 }
 
 /**
- * Run full re-analysis
+ * Run full re-analysis.
  */
 function taxonomy_autotagging_drush_process_all() {
   $bundles = node_type_get_types();
@@ -58,6 +57,9 @@ function taxonomy_autotagging_drush_process_all() {
   drush_print(t('Updated Taxonomy Terms matching for all the nodes'));
 }
 
+/**
+ * Drush version full process.
+ */
 function _drush_taxonomy_autotagging($instance) {
   // check if taxonomy auto tagging is active
   $taxonomy_autotagging_active = isset($instance['settings']['taxonomy_autotagging_active']) ? $instance['settings']['taxonomy_autotagging_active'] : 0;
@@ -65,8 +67,8 @@ function _drush_taxonomy_autotagging($instance) {
     return;
   }
   if ($taxonomy_autotagging_active == 1) {
-    // get all the entity ids from the bundle
-    // prepare the ids
+    // get all the entity ids from the bundle.
+    // prepare the ids.
     $bundle = $instance ['bundle'];
     $field_name = $instance ['field_name'];
     $entity_results = db_query('select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {taxonomy_autotagging_setting} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)',
@@ -77,7 +79,7 @@ function _drush_taxonomy_autotagging($instance) {
     $entity_total = $entity_results->rowCount();
     if ($entity_total > 0) {
       $entity_ids = $entity_results->fetchCol();
-      // Using Batch API for bulk autocategorising
+      // Using Batch API for bulk auto processing.
       $batch = array(
         'title' => t('Taxonomy Auto Tagging'),
         'operations' => array(),
@@ -87,13 +89,12 @@ function _drush_taxonomy_autotagging($instance) {
         'error_message' => t('Updating of auto tagging terms encountered an error.')
       );
 
-      //prepare the taxonomy terms/synonyms
+      //prepare the taxonomy terms/synonyms.
       $synonyms_enabled = isset($instance['settings']['taxonomy_autotagging_synonyms']) ? $instance['settings']['taxonomy_autotagging_synonyms'] : 0;
       $terms = _taxonomy_autotagging_prepare_terms($field_name, $synonyms_enabled);
 
       foreach ($entity_ids as $id) {
-        // We create a new process for each entity, as a means of keeping the
-        // batch process more transparent
+        // We create a new process for each entity, as a means of keeping the batch process more transparent.
         $batch ['operations'] [] = array(
           '_taxonomy_autotagging_batch_process_single',
           array(

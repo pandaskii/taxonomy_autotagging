@@ -1,6 +1,8 @@
 <?php
+
 /**
- * @file Taxonomy Auto Tagging batch helper.
+ * @file
+ * Taxonomy Auto Tagging batch helper.
  */
 
 /**

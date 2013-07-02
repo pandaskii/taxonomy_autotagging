@@ -1,6 +1,8 @@
 <?php
+
 /**
- * @file Taxonomy Auto Tagging Text Processing helpers.
+ * @file
+ * Taxonomy Auto Tagging Text Processing helpers.
  */
 
 /**

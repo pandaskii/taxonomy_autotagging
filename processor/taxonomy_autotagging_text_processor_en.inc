@@ -1,6 +1,8 @@
 <?php
+
 /**
- * @file Taxonomy Auto Tagging module English Text Processor.
+ * @file
+ * Taxonomy Auto Tagging module English Text Processor.
  */
 
 class taxonomy_autotagging_text_processor_en {
