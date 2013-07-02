@@ -70,7 +70,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
             );
             $flag = TRUE;
           }
-          elseif (is_int(strpos($vector, taxonomy_autotagging_text_processor_en::pluralize($key)))) {
+          elseif (is_int(strpos($vector, TaxonomyAutoTaggingTextProcessorEn::pluralize($key)))) {
             $fl_array[] = array(
               'tid' => $term['tid'],
               'mapping' => '',
@@ -78,7 +78,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
             $flag = TRUE;
           }
           else {
-            if (is_int(strpos($vector, taxonomy_autotagging_text_processor_en::singularize($key)))) {
+            if (is_int(strpos($vector, TaxonomyAutoTaggingTextProcessorEn::singularize($key)))) {
               $fl_array[] = array(
                 'tid' => $term['tid'],
                 'mapping' => '',
@@ -116,7 +116,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
             );
             $flag = TRUE;
           }
-          elseif (preg_match('/' . taxonomy_autotagging_text_processor_en::pluralize($key) . '/', $vector, $matches)) {
+          elseif (preg_match('/' . TaxonomyAutoTaggingTextProcessorEn::pluralize($key) . '/', $vector, $matches)) {
             $fl_array[] = array(
               'tid' => $term['tid'],
               'mapping' => $matches[0],
@@ -124,7 +124,7 @@ function _taxonomy_autotagging_analysis($vector, $terms, $instance) {
             $flag = TRUE;
           }
           else {
-            if (preg_match('/' . taxonomy_autotagging_text_processor_en::singularize($key) . '/', $vector, $matches)) {
+            if (preg_match('/' . TaxonomyAutoTaggingTextProcessorEn::singularize($key) . '/', $vector, $matches)) {
               $fl_array[] = array(
                 'tid' => $term['tid'],
                 'mapping' => $matches[0],

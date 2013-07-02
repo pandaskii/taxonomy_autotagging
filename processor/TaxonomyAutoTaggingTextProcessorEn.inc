@@ -5,7 +5,7 @@
  * Taxonomy Auto Tagging module English Text Processor.
  */
 
-class taxonomy_autotagging_text_processor_en {
+class TaxonomyAutoTaggingTextProcessorEn {
   /**
    * Pluralizes English nouns.
    *
@@ -13,8 +13,9 @@ class taxonomy_autotagging_text_processor_en {
    * @static
    * @param    string $word    English noun to pluralize
    * @return string Plural noun
+   *
    */
-  static function pluralize($word) {
+  public static function pluralize($word) {
     $plural = array(
       '/(quiz)$/i' => '1zes',
       '/^(ox)$/i' => '1en',
@@ -33,17 +34,26 @@ class taxonomy_autotagging_text_processor_en {
       '/(octop|vir)us$/i' => '1i',
       '/(ax|test)is$/i' => '1es',
       '/s$/i' => 's',
-      '/$/' => 's'
+      '/$/' => 's',
     );
 
-    $uncountable = array('equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep');
+    $uncountable = array(
+      'equipment',
+      'information',
+      'rice',
+      'money',
+      'species',
+      'series',
+      'fish',
+      'sheep',
+    );
 
     $irregular = array(
       'person' => 'people',
       'man' => 'men',
       'child' => 'children',
       'sex' => 'sexes',
-      'move' => 'moves'
+      'move' => 'moves',
     );
 
     $lowercased_word = strtolower($word);
@@ -76,8 +86,9 @@ class taxonomy_autotagging_text_processor_en {
    * @static
    * @param    string $word    English noun to singularize
    * @return string Singular noun.
+   *
    */
-  static function singularize($word) {
+  public static function  singularize($word) {
     $singular = array(
       '/(quiz)zes$/i' => '\1',
       '/(matr)ices$/i' => '\1ix',
@@ -154,8 +165,9 @@ class taxonomy_autotagging_text_processor_en {
    * first character. Otherwise it will uppercase all
    * the words in the title.
    * @return string Text formatted as title
+   *
    */
-  function titleize($word, $uppercase = '') {
+  public static function titleize($word, $uppercase = '') {
     $uppercase = $uppercase == 'first' ? 'ucfirst' : 'ucwords';
     return $uppercase(Inflector::humanize(Inflector::underscore($word)));
   }
@@ -172,8 +184,9 @@ class taxonomy_autotagging_text_processor_en {
    * @see variablize
    * @param    string $word    Word to convert to camel case
    * @return string UpperCamelCasedWord
+   *
    */
-  function camelize($word) {
+  public static function camelize($word) {
     return str_replace(' ', '', ucwords(preg_replace('/[^A-Z^a-z^0-9]+/', ' ', $word)));
   }
 
@@ -189,8 +202,9 @@ class taxonomy_autotagging_text_processor_en {
    * @static
    * @param    string $word    Word to underscore
    * @return string Underscored word
+   *
    */
-  function underscore($word) {
+  public static function underscore($word) {
     return strtolower(preg_replace('/[^A-Z^a-z^0-9]+/', '_',
       preg_replace('/([a-zd])([A-Z])/', '1_2',
         preg_replace('/([A-Z]+)([A-Z][a-z])/', '1_2', $word))));
@@ -212,8 +226,9 @@ class taxonomy_autotagging_text_processor_en {
    * @param    string $uppercase    If set to 'all' it will uppercase all the words
    * instead of just the first one.
    * @return string Human-readable word
+   *
    */
-  function humanize($word, $uppercase = '') {
+  public static function humanize($word, $uppercase = '') {
     $uppercase = $uppercase == 'all' ? 'ucwords' : 'ucfirst';
     return $uppercase(str_replace('_', ' ', preg_replace('/_id$/', '', $word)));
   }
@@ -230,8 +245,9 @@ class taxonomy_autotagging_text_processor_en {
    * @see camelize
    * @param    string $word    Word to lowerCamelCase
    * @return string Returns a lowerCamelCasedWord
+   *
    */
-  function variablize($word) {
+  public static function variablize($word) {
     $word = Inflector::camelize($word);
     return strtolower($word[0]) . substr($word, 1);
   }
@@ -247,8 +263,9 @@ class taxonomy_autotagging_text_processor_en {
    * @see classify
    * @param    string $class_name    Class name for getting related table_name.
    * @return string plural_table_name
+   *
    */
-  function tableize($class_name) {
+  public static function tableize($class_name) {
     return Inflector::pluralize(Inflector::underscore($class_name));
   }
 
@@ -263,8 +280,9 @@ class taxonomy_autotagging_text_processor_en {
    * @see tableize
    * @param    string $table_name    Table name for getting related ClassName.
    * @return string SingularClassName
+   *
    */
-  function classify($table_name) {
+  public static function classify($table_name) {
     return Inflector::camelize(Inflector::singularize($table_name));
   }
 
@@ -277,8 +295,9 @@ class taxonomy_autotagging_text_processor_en {
    * @static
    * @param    integer $number    Number to get its ordinal value
    * @return string Ordinal representation of given string.
+   *
    */
-  function ordinalize($number) {
+  public static function ordinalize($number) {
     if (in_array(($number % 100), range(11, 13))) {
       return $number . 'th';
     }
@@ -298,5 +317,4 @@ class taxonomy_autotagging_text_processor_en {
       }
     }
   }
-
 }
