@@ -16,12 +16,11 @@ function taxonomy_autotagging_help($section) {
   switch ($section) {
     case 'admin/help#search':
       return t('Automatically analysis and process the nodes text by matching the terms (and synonyms) against the content of textual fields.');
-      break;
   }
 }
 
 /**
- * Implements hook_form_FORMID_alter() for taxonomy field.
+ * Implements hook_form_FORMID_alter() for taxonomy_autotagging_form_field_ui_field_edit_form_alter().
  */
 function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_state) {
   if ($form['#field']['type'] != 'taxonomy_term_reference') {
@@ -37,7 +36,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#description' => t('You can enable/disable if the Taxonomy Auto Tagging applying in this vocabulary'),
       '#options' => array(
         '0' => t('Disabled'),
-        '1' => t('Enabled')
+        '1' => t('Enabled'),
       ),
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_active']) ? $form['#instance']['settings']['taxonomy_autotagging_active'] : 0,
     ),
@@ -78,7 +77,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#type' => 'checkbox',
       '#title' => t('Enable the taxonomy synonyms support'),
       '#description' => t('Taxonomy auto tagging will check the taxonomy terms synonyms.'),
-      '#default_value' => isset($form['#instance']['settings'] ['taxonomy_autotagging_synonyms']) ? $form['#instance']['settings']['taxonomy_autotagging_synonyms'] : 1,
+      '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_synonyms']) ? $form['#instance']['settings']['taxonomy_autotagging_synonyms'] : 1,
     );
     $form['taxonomy_autotagging']['taxonomy_autotagging_synonyms'] = $fields['taxonomy_autotagging_synonyms'];
   }
@@ -89,13 +88,13 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
  * Form callback to update the configurations.
  */
 function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
-  $instance = & $form_state ['values'] ['instance'];
-  $instance ['settings'] ['taxonomy_autotagging_active'] = $form_state ['values'] ['taxonomy_autotagging_active'];
-  $instance ['settings'] ['taxonomy_autotagging_case'] = $form_state ['values'] ['taxonomy_autotagging_case'];
-  $instance ['settings'] ['taxonomy_autotagging_mode'] = $form_state ['values'] ['taxonomy_autotagging_mode'];
-  $instance ['settings'] ['taxonomy_autotagging_storage'] = $form_state ['values'] ['taxonomy_autotagging_storage'];
+  $instance = &$form_state ['values']['instance'];
+  $instance['settings']['taxonomy_autotagging_active'] = $form_state['values']['taxonomy_autotagging_active'];
+  $instance['settings']['taxonomy_autotagging_case'] = $form_state['values']['taxonomy_autotagging_case'];
+  $instance['settings']['taxonomy_autotagging_mode'] = $form_state['values']['taxonomy_autotagging_mode'];
+  $instance['settings']['taxonomy_autotagging_storage'] = $form_state['values']['taxonomy_autotagging_storage'];
   if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
-    $instance ['settings'] ['taxonomy_autotagging_synonyms'] = $form_state ['values'] ['taxonomy_autotagging_synonyms'];
+    $instance['settings']['taxonomy_autotagging_synonyms'] = $form_state['values']['taxonomy_autotagging_synonyms'];
   }
   field_update_instance($instance);
 
@@ -105,7 +104,7 @@ function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
 }
 
 /**
- * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ * Implements hook_form_BASE_FORM_ID_alter() for taxonomy_autotagging_form_node_form_alter().
  */
 function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
   $field_info = field_info_instances();
@@ -128,7 +127,7 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Node form callback to update the taxonomy auto tagging setting for single node.
+ * Node form callback to update the setting for single node.
  */
 function _taxonomy_autotagging_setting_form_submit($form, &$form_state) {
   $op = $form_state['values']['op'];
