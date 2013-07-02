@@ -33,8 +33,8 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#title' => t('Active/Disactive the Taxonomy Auto Tagging'),
       '#description' => t('You can enable/disable if the Taxonomy Auto Tagging applying in this vocabulary'),
       '#options' => array(
-        '0' => t('Disactive'),
-        '1' => t('Active')
+        '0' => t('Disabled'),
+        '1' => t('Enabled')
       ),
       '#default_value' => isset($form ['#instance']['settings']['taxonomy_autotagging_active']) ? $form ['#instance']['settings']['taxonomy_autotagging_active'] : 0,
     ),
@@ -47,7 +47,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#type' => 'checkbox',
       '#title' => t('Case sensitive'),
       '#description' => t('Default setting is case insensitive, and the text will be conveted to lower case before matching.'),
-      '#default_value' => isset($form ['#instance'] ['settings']['taxonomy_autotagging_case']) ? $form ['#instance']['settings']['taxonomy_autotagging_case'] : 0,
+      '#default_value' => isset($form ['#instance']['settings']['taxonomy_autotagging_case']) ? $form ['#instance']['settings']['taxonomy_autotagging_case'] : 0,
     ),
     'taxonomy_autotagging_storage' => array(
       '#type' => 'checkbox',
