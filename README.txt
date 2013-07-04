@@ -18,7 +18,9 @@ Introduction
 
 Current Maintainer: Joseph Z (joseph@gotouch.com.au)
 
-The Taxonomy Auto Tagging can automatically attach the tags with nodes, and the whole process is based on pre-defined vocabulary terms and synonyms associated with the node content type.
+The Taxonomy Auto Tagging can automatically attach the tags with nodes,
+and the whole process is based on pre-defined vocabulary terms and synonyms
+associated with the node content type.
 
 Features:
 
@@ -26,7 +28,7 @@ Features:
 * Node(s) can be excluded from the auto tagging process and display.
 * Drush support: drush tat.
 * Support Synonyms module.
-* The matching terms information can be chosen saving into database for further usage.
+* The matching terms information can be chosen saving into database.
 
 
 Installation
@@ -48,10 +50,12 @@ Configuration
 3. Go to manage fields then edit
 4. Choose the Taxonomy Auto Tagging options
 
-You can click the button "Run the taxonomy auto tagging", then the module will automatically bulk process the nodes and attach the tag(s).
+You can click the button "Run the taxonomy auto tagging",
+then the module will automatically bulk process the nodes and attach the tag(s).
 
 
 Drush
 =====
 
-drush tat - will bulk process the whole nodes in the database if the Taxonomy Auto Tagging is set to "Enabled".
+drush tat - will bulk process the whole nodes in the database
+if the Taxonomy Auto Tagging is set to "Enabled".
