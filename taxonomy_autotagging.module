@@ -40,6 +40,8 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       ),
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_active']) ? $form['#instance']['settings']['taxonomy_autotagging_active'] : 0,
     ),
+  );
+  $fields = array(
     'taxonomy_autotagging_run' => array(
       '#type' => 'submit',
       '#value' => t('Run the taxonomy auto tagging'),
@@ -71,7 +73,6 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_mode']) ? $form['#instance']['settings']['taxonomy_autotagging_mode'] : 3,
     ),
   );
-  $fields = array();
   if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
     $fields['taxonomy_autotagging_synonyms'] = array(
       '#type' => 'checkbox',
