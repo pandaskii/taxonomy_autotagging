@@ -117,18 +117,3 @@ function taxonomy_autotagging_schema() {
   );
   return $schema;
 }
-
-/**
- * Implements hook_uninstall().
- */
-function taxonomy_autotagging_uninstall() {
-  // Simple DB query to get the names of our variables.
-  $results = db_select('variable', 'v')
-    ->fields('v', array('name'))
-    ->condition('name', 'taxonomy_autotagging_%', 'LIKE')
-    ->execute();
-  // Loop through and delete each of our variables.
-  foreach ($results as $result) {
-    variable_del($result->name);
-  }
-}
