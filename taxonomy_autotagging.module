@@ -73,6 +73,11 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_mode']) ? $form['#instance']['settings']['taxonomy_autotagging_mode'] : 3,
     ),
   );
+  // Add the fields to form.
+  $form['taxonomy_autotagging']['taxonomy_autotagging_run'] = $fields['taxonomy_autotagging_run'];
+  $form['taxonomy_autotagging']['taxonomy_autotagging_case'] = $fields['taxonomy_autotagging_case'];
+  $form['taxonomy_autotagging']['taxonomy_autotagging_storage'] = $fields['taxonomy_autotagging_storage'];
+  $form['taxonomy_autotagging']['taxonomy_autotagging_mode'] = $fields['taxonomy_autotagging_mode'];
   if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
     $fields['taxonomy_autotagging_synonyms'] = array(
       '#type' => 'checkbox',
