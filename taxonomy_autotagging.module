@@ -21,7 +21,7 @@ module_load_include('inc', 'taxonomy_autotagging', 'includes/taxonomy_autotaggin
 function taxonomy_autotagging_help($section) {
   switch ($section) {
     case 'admin/help#search':
-      return t('Automatically analysis and process the nodes text by matching the terms (and synonyms) against the content of textual fields.');
+      return t('Automatically analysis and process the node(s) text by matching the terms (and synonyms) against the content of textual fields.');
   }
 }
 
