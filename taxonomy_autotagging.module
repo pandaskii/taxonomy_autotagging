@@ -90,7 +90,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
     );
   }
   // Add the fields to form.
-  $form['taxonomy_autotagging'] = array_merge($form['taxonomy_autotagging'],$fields);
+  $form['taxonomy_autotagging'] = array_merge($form['taxonomy_autotagging'], $fields);
   $form['#submit'][] = '_taxonomy_autotagging_settings_form_submit';
 }
 
@@ -181,7 +181,7 @@ function taxonomy_autotagging_node_insert($node) {
  * Node form callback to update the setting for single node.
  */
 function _taxonomy_autotagging_setting_form_submit($form, &$form_state) {
-  if (isset($form_state['values']['nid']) && $form_state['values']['op'] =='Save') {
+  if (isset($form_state['values']['nid']) && $form_state['values']['op'] == 'Save') {
     // Prepare the taxonomy autotagging fields.
     $field_info = field_info_instances();
     foreach ($field_info['node'][$form['type']['#value']] as $field) {
@@ -190,7 +190,8 @@ function _taxonomy_autotagging_setting_form_submit($form, &$form_state) {
           $status = $form_state['values']['taxonomy_autotagging_active'][$field['field_name']];
           if (check_plain($field['field_name']) == check_plain($status)) {
             $status = 1;
-          } else {
+          }
+          else {
             $status = 0;
           }
           $taxonomy_autotagging_field_config = array(
