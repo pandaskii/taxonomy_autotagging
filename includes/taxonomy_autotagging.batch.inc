@@ -16,7 +16,8 @@ function _taxonomy_autotagging_process_all($instance) {
     // Prepare the ids.
     $bundle = $instance['bundle'];
     $field_name = $instance['field_name'];
-    $entity_results = db_query('select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from ' . db_escape_table(TAXONOMY_AUTOTAGGING_TABLE_SETTING) . ' tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)',
+    $sql = 'select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {' . TAXONOMY_AUTOTAGGING_TABLE_SETTING . '} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)';
+    $entity_results = db_query($sql,
       array(
         ':type' => $bundle,
         ':field_name' => $field_name,
