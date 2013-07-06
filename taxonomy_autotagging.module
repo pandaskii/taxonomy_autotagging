@@ -8,8 +8,8 @@
 /**
  * The default settings.
  */
-define('TAT_TABLE_SETTING', 'taxonomy_autotagging_setting');
-define('TAT_TABLE_NODE', 'taxonomy_autotagging_node');
+define('TAXONOMY_AUTOTAGGING_TABLE_SETTING', 'taxonomy_autotagging_setting');
+define('TAXONOMY_AUTOTAGGING_TABLE_NODE', 'taxonomy_autotagging_node');
 
 // Load the helper file.
 module_load_include('inc', 'taxonomy_autotagging', 'includes/taxonomy_autotagging.lib');
@@ -129,10 +129,10 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
         $option = array($field['field_name'] => $field['label']);
         $options = array_merge($options, $option);
         // Query the table to get the current node TAT setting.
-        $query = db_select(TAT_TABLE_SETTING, 'tat');
+        $query = db_select(TAXONOMY_AUTOTAGGING_TABLE_SETTING, 'tas');
         $status = $query->condition('entity_id', $form['nid'])
           ->condition('field_name', $field['field_name'])
-          ->fields('tat', array('status'))
+          ->fields('tas', array('status'))
           ->execute();
         $status_value = $status->fetchField();
         if ($status_value == 1) {
@@ -213,16 +213,19 @@ function _taxonomy_autotagging_setting_form_submit($form, &$form_state) {
  * Save the settings.
  */
 function _taxonomy_autotagging_write_single_config($taxonomy_autotagging_field_config) {
-  $existing = db_select('taxonomy_autotagging_setting', 'tan')
-    ->condition('entity_id', $taxonomy_autotagging_field_config['entity_id'])
-    ->condition('field_name', $taxonomy_autotagging_field_config['field_name'], 'like')
-    ->fields('tan', array('status'))->execute();
+  $existing = db_select(TAXONOMY_AUTOTAGGING_TABLE_SETTING, 'tas')
+              ->condition('entity_id', $taxonomy_autotagging_field_config['entity_id'])
+              ->condition('field_name', $taxonomy_autotagging_field_config['field_name'])
+              ->fields('tas', array('status'))
+              ->execute();
   if ($existing->fetchField() === FALSE) {
-    db_insert('taxonomy_autotagging_setting')->fields($taxonomy_autotagging_field_config)->execute();
+    db_insert(TAXONOMY_AUTOTAGGING_TABLE_SETTING)->fields($taxonomy_autotagging_field_config)->execute();
   }
   else {
-    db_update('taxonomy_autotagging_setting')->fields($taxonomy_autotagging_field_config)
+    db_update(TAXONOMY_AUTOTAGGING_TABLE_SETTING)
+      ->fields($taxonomy_autotagging_field_config)
       ->condition('entity_id', $taxonomy_autotagging_field_config['entity_id'])
-      ->condition('field_name', $taxonomy_autotagging_field_config['field_name'], 'like')->execute();
+      ->condition('field_name', $taxonomy_autotagging_field_config['field_name'])
+      ->execute();
   }
 }
