@@ -103,9 +103,11 @@ function _taxonomy_autotagging_settings_form_submit($form, &$form_state) {
   $instance['settings']['taxonomy_autotagging_case'] = $form_state['values']['taxonomy_autotagging_case'];
   $instance['settings']['taxonomy_autotagging_mode'] = $form_state['values']['taxonomy_autotagging_mode'];
   $instance['settings']['taxonomy_autotagging_storage'] = $form_state['values']['taxonomy_autotagging_storage'];
+  // Check if synonyms module is enabled.
   if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
     $instance['settings']['taxonomy_autotagging_synonyms'] = $form_state['values']['taxonomy_autotagging_synonyms'];
   }
+  // Update the field.
   field_update_instance($instance);
 
   if ($form_state['values']['op'] == t('Run the taxonomy auto tagging')) {
