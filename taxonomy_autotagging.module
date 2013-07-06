@@ -29,6 +29,7 @@ function taxonomy_autotagging_help($section) {
  * Implements hook_form_FORMID_alter().
  */
 function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_state) {
+  // Check the field type.
   if ($form['#field']['type'] != 'taxonomy_term_reference') {
     return;
   }
@@ -38,7 +39,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
     '#description' => t('Automatically analysis the nodes text by matching the taxonomy terms.'),
     'taxonomy_autotagging_active' => array(
       '#type' => 'radios',
-      '#title' => t('Active/Disactive the Taxonomy Auto Tagging'),
+      '#title' => t('Enable/Disable the Taxonomy Auto Tagging'),
       '#description' => t('You can enable/disable if the Taxonomy Auto Tagging applying in this vocabulary'),
       '#options' => array(
         '0' => t('Disabled'),
@@ -47,6 +48,7 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_active']) ? $form['#instance']['settings']['taxonomy_autotagging_active'] : 0,
     ),
   );
+  // Prepare the fields.
   $fields = array(
     'taxonomy_autotagging_run' => array(
       '#type' => 'submit',
@@ -79,11 +81,6 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_mode']) ? $form['#instance']['settings']['taxonomy_autotagging_mode'] : 3,
     ),
   );
-  // Add the fields to form.
-  $form['taxonomy_autotagging']['taxonomy_autotagging_run'] = $fields['taxonomy_autotagging_run'];
-  $form['taxonomy_autotagging']['taxonomy_autotagging_case'] = $fields['taxonomy_autotagging_case'];
-  $form['taxonomy_autotagging']['taxonomy_autotagging_storage'] = $fields['taxonomy_autotagging_storage'];
-  $form['taxonomy_autotagging']['taxonomy_autotagging_mode'] = $fields['taxonomy_autotagging_mode'];
   if (module_exists('synonyms') && function_exists('synonyms_get_term_synonyms')) {
     $fields['taxonomy_autotagging_synonyms'] = array(
       '#type' => 'checkbox',
@@ -91,8 +88,9 @@ function taxonomy_autotagging_form_field_ui_field_edit_form_alter(&$form, $form_
       '#description' => t('Taxonomy auto tagging will check the taxonomy terms synonyms.'),
       '#default_value' => isset($form['#instance']['settings']['taxonomy_autotagging_synonyms']) ? $form['#instance']['settings']['taxonomy_autotagging_synonyms'] : 1,
     );
-    $form['taxonomy_autotagging']['taxonomy_autotagging_synonyms'] = $fields['taxonomy_autotagging_synonyms'];
   }
+  // Add the fields to form.
+  $form['taxonomy_autotagging'] = array_merge($form['taxonomy_autotagging'],$fields);
   $form['#submit'][] = '_taxonomy_autotagging_settings_form_submit';
 }
 
