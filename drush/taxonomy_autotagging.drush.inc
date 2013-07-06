@@ -28,21 +28,20 @@ function taxonomy_autotagging_drush_command() {
  * Run full re-analysis.
  */
 function taxonomy_autotagging_drush_process_all() {
-  $bundles = node_type_get_types();
-  foreach ($bundles as $bundle) {
-    $field_info = field_info_instances();
-    foreach ($field_info['node'][$bundle->type] as $field) {
-      if (isset($field['settings']['taxonomy_autotagging_active']) && $field['settings']['taxonomy_autotagging_active'] == '1') {
-        $field_name = $field['field_name'];
-        $instances[] = field_info_instance('node', $field_name, $bundle->type);
-      }
-    }
-  }
-
   if (!function_exists('_drush_taxonomy_autotagging')) {
     drush_set_error(dt("The function '@fucname' is not found.", array('@fucname' => '_drush_taxonomy_autotagging')));
   }
   else {
+    $bundles = node_type_get_types();
+    foreach ($bundles as $bundle) {
+      $field_info = field_info_instances();
+      foreach ($field_info['node'][$bundle->type] as $field) {
+        if (isset($field['settings']['taxonomy_autotagging_active']) && $field['settings']['taxonomy_autotagging_active'] == '1') {
+          $field_name = $field['field_name'];
+          $instances[] = field_info_instance('node', $field_name, $bundle->type);
+        }
+      }
+    }
     if (is_array($instances) && !empty($instances)) {
       foreach ($instances as $instance) {
         drush_print('Processing ' . $instance['bundle'] . ' with Taxonomy field ' . $instance['field_name']);
@@ -71,7 +70,8 @@ function _drush_taxonomy_autotagging($instance) {
     // Prepare the ids.
     $bundle = $instance['bundle'];
     $field_name = $instance['field_name'];
-    $entity_results = db_query('select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {taxonomy_autotagging_setting} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)',
+    $sql = 'select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {' . db_escape_table(TAXONOMY_AUTOTAGGING_TABLE_SETTING) . '} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)';
+    $entity_results = db_query($sql,
       array(
         ':type' => $bundle,
         ':field_name' => $field_name,

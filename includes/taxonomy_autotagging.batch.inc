@@ -16,7 +16,7 @@ function _taxonomy_autotagging_process_all($instance) {
     // Prepare the ids.
     $bundle = $instance['bundle'];
     $field_name = $instance['field_name'];
-    $sql = 'select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {' . TAXONOMY_AUTOTAGGING_TABLE_SETTING . '} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)';
+    $sql = 'select n.nid from {node} n WHERE n.type = :type AND n.nid NOT IN (select entity_id from {' . db_escape_table(TAXONOMY_AUTOTAGGING_TABLE_SETTING) . '} tan WHERE field_name = :field_name AND status = 0 AND entity_id = n.nid)';
     $entity_results = db_query($sql,
       array(
         ':type' => $bundle,
@@ -100,16 +100,16 @@ function _taxonomy_autotagging_batch_process_single($terms, $instance, $id, &$co
         );
         // Save them into database.
         if (is_array($taxonomy_autotagging_node) && !empty($taxonomy_autotagging_node)) {
-          $existing = db_select('taxonomy_autotagging_node', 'tan')
+          $existing = db_select(db_escape_table(TAXONOMY_AUTOTAGGING_TABLE_NODE), 'tan')
             ->condition('entity_id', $taxonomy_autotagging_node['entity_id'])
             ->condition('field_name', $taxonomy_autotagging_node['field_name'])
             ->fields('tan', array('entity_id'))
             ->execute();
           if ($existing->fetchField() === FALSE) {
-            db_insert('taxonomy_autotagging_node')->fields($taxonomy_autotagging_node)->execute();
+            db_insert(db_escape_table(TAXONOMY_AUTOTAGGING_TABLE_NODE))->fields($taxonomy_autotagging_node)->execute();
           }
           else {
-            db_update('taxonomy_autotagging_node')
+            db_update(db_escape_table(TAXONOMY_AUTOTAGGING_TABLE_NODE))
               ->fields($taxonomy_autotagging_node)
               ->condition('entity_id', $taxonomy_autotagging_node['entity_id'])
               ->condition('field_name', $taxonomy_autotagging_node['field_name'])
