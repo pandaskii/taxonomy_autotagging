@@ -142,7 +142,23 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
     }
     // Build the TAT settings form.
     if (!empty($options)) {
-      $form['taxonomy_autotagging_active'] = array(
+      $form['taxonomy_autotagging_tab'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Taxonomy Auto Tagging'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#tree' => TRUE,
+        // Send this tab to the bottom of the list.
+        '#weight' => 99,
+        '#group' => 'additional_settings',
+        '#description' => t('Taxonomy Auto Tagging Configuration.'),
+        '#attached' => array(
+          'js' => array(
+            'vertical-tabs' => drupal_get_path('module', 'taxonomy_autotagging') . '/js/taxonomy_autotagging.tab.js',
+          ),
+        ),
+      );
+      $form['taxonomy_autotagging_tab']['enabled'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Enable Taxonomy Auto Tagging with this vocabulary in this node?'),
         '#options' => $options,
@@ -157,8 +173,9 @@ function taxonomy_autotagging_form_node_form_alter(&$form, &$form_state) {
  * Implements hook_nodeapi().
  */
 function taxonomy_autotagging_node_insert($node) {
-  if (isset($node->nid) && isset($node->taxonomy_autotagging_active) && !empty($node->taxonomy_autotagging_active)) {
-    foreach ($node->taxonomy_autotagging_active as $field_name => $field_value) {
+  if (isset($node->nid) && isset($node->taxonomy_autotagging_tab['enabled'])) {
+    $field_enabled = $node->taxonomy_autotagging_tab['enabled'];
+    foreach ($field_enabled as $field_name => $field_value) {
       $status = 0;
       if (check_plain($field_name) == check_plain($field_value)) {
         $status = 1;
@@ -186,25 +203,28 @@ function _taxonomy_autotagging_setting_form_submit($form, &$form_state) {
     $field_info = field_info_instances();
     foreach ($field_info['node'][$form['type']['#value']] as $field) {
       if (isset($field['settings']['taxonomy_autotagging_active']) && $field['settings']['taxonomy_autotagging_active'] == '1') {
-        if (isset($form_state['values']['taxonomy_autotagging_active'][$field['field_name']])) {
-          $status = $form_state['values']['taxonomy_autotagging_active'][$field['field_name']];
-          if (check_plain($field['field_name']) == check_plain($status)) {
-            $status = 1;
+        if (isset($form_state['values']['taxonomy_autotagging_tab']['enabled'])) {
+          $filed_enabled = $form_state['values']['taxonomy_autotagging_tab']['enabled'];
+          if (isset($filed_enabled[$field['field_name']])) {
+            $status = $filed_enabled[$field['field_name']];
+            if (check_plain($field['field_name']) == check_plain($status)) {
+              $status = 1;
+            }
+            else {
+              $status = 0;
+            }
+            $taxonomy_autotagging_field_config = array(
+              'entity_type' => $field['entity_type'],
+              'entity_id' => $form_state['values']['nid'],
+              'language' => $form_state['values']['language'],
+              'bundle' => $field['bundle'],
+              'field_name' => $field['field_name'],
+              'status' => $status,
+              'changed' => REQUEST_TIME,
+            );
+            // Save them into database.
+            _taxonomy_autotagging_write_single_config($taxonomy_autotagging_field_config);
           }
-          else {
-            $status = 0;
-          }
-          $taxonomy_autotagging_field_config = array(
-            'entity_type' => $field['entity_type'],
-            'entity_id' => $form_state['values']['nid'],
-            'language' => $form_state['values']['language'],
-            'bundle' => $field['bundle'],
-            'field_name' => $field['field_name'],
-            'status' => $status,
-            'changed' => REQUEST_TIME,
-          );
-          // Save them into database.
-          _taxonomy_autotagging_write_single_config($taxonomy_autotagging_field_config);
         }
       }
     }
