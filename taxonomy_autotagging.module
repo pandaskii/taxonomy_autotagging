@@ -16,6 +16,21 @@ module_load_include('inc', 'taxonomy_autotagging', 'includes/taxonomy_autotaggin
 module_load_include('inc', 'taxonomy_autotagging', 'includes/taxonomy_autotagging.batch');
 
 /**
+ * Implements hook_menu().
+ */
+function taxonomy_autotagging_menu() {
+  $pre = 'admin/config/content/taxonomy_auotagging';
+  $items[$pre] = array(
+  		'title' => 'Taxonomy Autotagging',
+  		'description' => 'Configure taxonomy autotagging.',
+  		'page callback' => 'taxonomy_autotagging_admin_overview',
+  		'access arguments' => array('administer taxonomy_auotagging'),
+  		'file' => 'taxonomy_auotagging.admin.inc',
+  );
+  return $items;
+}
+
+/**
  * Implements hook_help().
  */
 function taxonomy_autotagging_help($section) {

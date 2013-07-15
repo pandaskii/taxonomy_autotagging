@@ -5,3 +5,5 @@ package = Taxonomy
 dependencies[] = taxonomy
 
 files[] = processor/TaxonomyAutoTaggingTextProcessorEn.inc
+
+configure = admin/config/content/taxonomy_autotagging
